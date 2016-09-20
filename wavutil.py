@@ -66,10 +66,10 @@ for i in range(wInfo[3]):
     if wInfo[1] == 2:# if Bytes/sample are 2 bytes (16-bit)
         if pres.r:# bit reduce option
             dL = struct.unpack('h',t[0:2])[0]
-            dL = int(round(dL / 256.0)) + 128
+            dL = int(dL / 256.0) + 128
             if wInfo[0] == 2:# if file has two channel
                 dR = struct.unpack('h',t[2:4])[0]
-                dR = int(round(dR / 256.0)) + 128
+                dR = int(dR / 256.0) + 128
         else: #treated as unsigned 16bit int
             dL = struct.unpack('H',t[0:2])[0]
             dR = struct.unpack('H',t[2:4])[0]
@@ -80,7 +80,10 @@ for i in range(wInfo[3]):
 
     if pres.b:#Binary output
         if pres.r:
-            fbin.write(struct.pack('BB',dL,dR))
+            if wInfo[0] == 2:# if file has two channel
+                fbin.write(struct.pack('BB',dL,dR))
+            else:
+                fbin.write(struct.pack('B',dL))
         else:
             fbin.write(t)
 
