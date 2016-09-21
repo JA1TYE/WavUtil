@@ -42,20 +42,21 @@ else:
     quit()
 
 #Prepare the header for C-Style option
-farr.write('/*\n')
-farr.write('Filename: ' + pres.input)
-farr.write('File Format: ' + str(wInfo[0]) +'-Ch,' + str(wInfo[1] * 8) + '-Bit,' + str(wInfo[2]) + 'Hz\n')
-if pres.r:
-    farr.write('Bit resolution is reduced to 8-Bit.\n')
-farr.write('*/\n')
+if pres.a:
+    farr.write('/*\n')
+    farr.write('Filename: ' + pres.input)
+    farr.write('File Format: ' + str(wInfo[0]) +'-Ch,' + str(wInfo[1] * 8) + '-Bit,' + str(wInfo[2]) + 'Hz\n')
+    if pres.r:
+        farr.write('Bit resolution is reduced to 8-Bit.\n')
+    farr.write('*/\n')
 
-#Calc number of element
-NoE = wInfo[3] * wInfo[0]
+    #Calc number of element
+    NoE = wInfo[3] * wInfo[0]
 
-if wInfo[1] == 2 and pres.r is not True:#for 16bit wav without -r option
-    farr.write('int16_t wave[' + str(NoE) + ']={\n')
-else:
-    farr.write('uint8_t wave[' + str(NoE) + ']={\n')
+    if wInfo[1] == 2 and pres.r is not True:#for 16bit wav without -r option
+        farr.write('int16_t wave[' + str(NoE) + ']={\n')
+    else:
+        farr.write('uint8_t wave[' + str(NoE) + ']={\n')
 
 
 #Write the file
@@ -72,11 +73,12 @@ for i in range(wInfo[3]):
                 dR = int(dR / 256.0) + 128
         else: #treated as unsigned 16bit int
             dL = struct.unpack('H',t[0:2])[0]
-            dR = struct.unpack('H',t[2:4])[0]
+            if wInfo[0] == 2:# if file has two channel
+                dR = struct.unpack('H',t[2:4])[0]
     else:# if Bytes/sample is 1 byte (8-bit)
-        dL = struct.unpack('B',t[0])[0]
+        dL = t[0]
         if wInfo[0] == 2:# if file has two channel
-            dR = struct.unpack('B',t[1])[0]
+            dR = t[1]
 
     if pres.b:#Binary output
         if pres.r:
